@@ -1,0 +1,39 @@
+import tensorflow as tf
+
+# بارگیری داده‌های ImageNet با استفاده از تابع ImageDataGenerator
+train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+    rescale=1./255,
+    shear_range=0.2,
+    zoom_range=0.2,
+    horizontal_flip=True
+)
+
+train_generator = train_datagen.flow_from_directory(
+    'path/to/train/directory',
+    target_size=(224, 224),
+    batch_size=32,
+    class_mode='categorical'
+)
+
+# تعریف مدل شبکه عصبی
+model = tf.keras.Sequential([
+    tf.keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(224, 224, 3)),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(64, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Conv2D(128, (3, 3), activation='relu'),
+    tf.keras.layers.MaxPooling2D((2, 2)),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(512, activation='relu'),
+    tf.keras.layers.Dense(10, activation='softmax')
+])
+
+# کامپایل مدل با استفاده از بهینه‌ساز Adam و تابع خطا categorical_crossentropy
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# آموزش مدل با داده‌های ImageNet
+model.fit(train_generator, epochs=10)
